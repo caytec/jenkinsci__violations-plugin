@@ -9,14 +9,16 @@ import java.io.File;
 
 import java.util.Locale;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import hudson.plugins.violations.ViolationsParser;
-   
+
 public abstract class ViolationsDOMParser
     implements ViolationsParser {
 
@@ -53,6 +55,26 @@ public abstract class ViolationsDOMParser
         boolean success = false;
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            String FEATURE = null;
+            try {
+                FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+                dbf.setFeature(FEATURE, false);
+
+                FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+                dbf.setFeature(FEATURE, false);
+
+                FEATURE = "http://xml.org/sax/features/external-general-entities";
+                dbf.setFeature(FEATURE, false);
+
+                dbf.setXIncludeAware(false);
+                dbf.setExpandEntityReferences(false);
+
+                dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            } catch (ParserConfigurationException e) {
+                throw new IllegalStateException("The feature '"
+                    + FEATURE + "' is not supported by your XML processor.", e);
+            }
             DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(new File(projectPath, fileName));
 

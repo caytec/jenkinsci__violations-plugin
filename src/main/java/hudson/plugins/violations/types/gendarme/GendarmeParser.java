@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,6 +57,26 @@ public class GendarmeParser implements ViolationsParser {
         this.sourcePaths = sourcePaths;
         
 		DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        String FEATURE = null;
+        try {
+            FEATURE = "http://xml.org/sax/features/external-parameter-entities";
+            docBuilderFactory.setFeature(FEATURE, false);
+
+            FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+            docBuilderFactory.setFeature(FEATURE, false);
+
+            FEATURE = "http://xml.org/sax/features/external-general-entities";
+            docBuilderFactory.setFeature(FEATURE, false);
+
+            docBuilderFactory.setXIncludeAware(false);
+            docBuilderFactory.setExpandEntityReferences(false);
+
+            docBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        } catch (ParserConfigurationException e) {
+            throw new IllegalStateException("The feature '"
+                + FEATURE + "' is not supported by your XML processor.", e);
+        }
 		DocumentBuilder docBuilder;		
 		try {
 			docBuilder = docBuilderFactory.newDocumentBuilder();
